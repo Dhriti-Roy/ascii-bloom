@@ -304,7 +304,14 @@ $('types').insertAdjacentHTML('beforeend','<button class="pill" data-v="mix">Mix
 swatches($('pals'),(k,v)=>{S[k]=v;syncMaker();makerItems(true)});
 $('n').oninput=e=>{S.n=+e.target.value;$('nv').textContent=S.n;makerItems(true)};
 $('name').oninput=e=>{S.name=e.target.value;card()};$('note').oninput=e=>{S.msg=e.target.value;card()};$('fromi').oninput=e=>{S.from=e.target.value;card()};
-$('again').onclick=()=>{S.seed=Math.floor(Math.random()*1e9);makerItems(true)};
+$('again').onclick = () => {
+    S.seed = Math.floor(Math.random() * 1e9);
+    S.type = TYPES[Math.floor(Math.random() * TYPES.length)];
+    S.pal = PK[Math.floor(Math.random() * PK.length)];
+    S.n = 3 + Math.floor(Math.random() * 5);
+    syncMaker();
+    makerItems(true);
+};
 $('daily').onclick=()=>{const d=new Date().toISOString().slice(0,10);let h=0;for(const ch of d)h=(h*31+ch.charCodeAt(0))|0;const r=rngf(h);
  S.seed=Math.abs(h);S.type=TYPES[Math.floor(r()*6)];S.pal=PK[Math.floor(r()*3)];S.n=3+Math.floor(r()*5);syncMaker();makerItems(true);toast('Everyone sees this one today ('+d+')')};
 
