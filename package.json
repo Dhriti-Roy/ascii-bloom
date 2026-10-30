@@ -1,0 +1,10 @@
+{
+  "name": "ascii-bloom",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Ascii Bloom: flowers made of code, with shared gardens for people who are far apart.",
+  "dependencies": {
+    "@libsql/client": "^0.15.0"
+  }
+}
