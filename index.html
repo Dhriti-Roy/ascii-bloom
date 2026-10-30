@@ -82,9 +82,19 @@ footer{border-top:1px solid var(--line);color:var(--mute);font-size:13px;padding
  <div class="top">
   <h1>Ascii <b>bloom</b></h1>
   <nav role="tablist" aria-label="Sections">
-   <button class="tab" role="tab" id="t-maker" aria-selected="true">Flower maker</button>
-   <button class="tab" role="tab" id="t-garden" aria-selected="false"><span>xoxo</span>Your Garden</button>
-  </nav>
+    <button class="tab" role="tab" id="t-maker" aria-selected="true">
+        Flower maker
+    </button>
+
+    <button class="tab" role="tab" id="t-garden" aria-selected="false">
+        <span>xoxo</span>Your Garden
+    </button>
+
+    <button class="tab" type="button" id="refresh-page"
+        aria-label="Refresh page" title="Refresh page">
+        ↻ Refresh
+    </button>
+</nav>
  </div>
  <p class="sub">Digital flowers. Make one for someone you love, or for yourself. You deserve flowers too.</p>
 </header>
@@ -460,6 +470,10 @@ function start(){
  const k=store.get('ab-key');loadLocal();if(k)openGarden({key:k});
 }
 $('t-maker').onclick=()=>tab('maker');$('t-garden').onclick=()=>tab('garden');
+ // Refresh the entire page
+$('refresh-page').onclick = () => {
+    location.reload();
+};
 syncMaker();makerItems(true);countdown();requestAnimationFrame(loop);
 const q0=new URLSearchParams(location.search);
 if(q0.get('f'))openGift(q0.get('f'));else tab(location.hash==='#garden'||q0.get('join')||q0.get('view')?'garden':'maker',false);
