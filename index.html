@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Ascii Bloom: flowers made of code, and shared gardens for people who are far apart.">
+<meta name="theme-color" content="#0a0a0c">
+<title>Ascii Bloom: flowers made of code</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌸%3C/text%3E%3C/svg%3E">
+<style>
+:root{color-scheme:dark;--bg:#0a0a0c;--panel:#131317;--line:#26262d;--text:#f3ecef;--mute:#9a949b;--pink:#f4739f;--soft:#ffd0e1;--ink:#1a0610;--mono:ui-monospace,Menlo,Consolas,"DejaVu Sans Mono",monospace;--serif:Georgia,"Times New Roman",serif}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;background:radial-gradient(900px 500px at 70% -10%,#2a1220 0,transparent 60%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1080px;margin:auto;padding:0 20px}
+header{padding-top:24px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font:italic 400 clamp(30px,6vw,46px)/1.1 var(--serif);margin:0}
+h1 b{font-style:normal;color:var(--pink);font-family:var(--mono)}
+h2{font:italic 400 26px var(--serif);margin:0}
+.sub{color:var(--mute);margin:8px 0 0;max-width:600px}
+nav{display:flex;gap:8px}
+.tab{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:9px 18px;cursor:pointer;font:inherit;font-weight:600}
+.tab[aria-selected=true]{background:var(--pink);border-color:var(--pink);color:var(--ink)}
+.tab span{font:700 12px var(--mono);letter-spacing:.1em;margin-right:6px}
+main{padding-bottom:56px}
+[hidden]{display:none!important}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:24px;margin-top:18px}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.stage,.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px}
+.stage{background:#050506;padding:14px;text-align:center}
+.panel{display:flex;flex-direction:column;gap:14px}
+.card{padding:6px 10px 12px}
+.msg{font:400 clamp(20px,4vw,26px)/1.25 var(--serif);margin:6px 0 0}.msg i{color:var(--soft)}
+.from{color:var(--mute);font:italic 15px var(--serif);margin-top:4px}
+canvas{display:block;width:100%}
+.scroller{overflow-x:auto;background:#050506;border:1px solid var(--line);border-radius:18px;margin-top:12px}
+.scroller canvas{min-width:680px}
+label,.lab{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+input[type=text],textarea,input[type=date]{width:100%;margin-top:5px;background:#0c0c0f;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit}
+textarea{resize:vertical;min-height:64px}
+input:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--pink);outline-offset:1px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;align-items:center}
+.pill{border:1px solid var(--line);background:#0c0c0f;color:var(--text);border-radius:999px;padding:6px 13px;cursor:pointer;font:inherit;font-size:14px}
+.pill[aria-pressed=true]{background:var(--pink);border-color:var(--pink);color:var(--ink);font-weight:600}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
+.sw[aria-pressed=true]{border-color:#fff}
+.btn{flex:1;min-width:130px;border:1px solid var(--line);background:#0c0c0f;color:var(--text);border-radius:12px;padding:11px 14px;cursor:pointer;font:inherit;text-decoration:none;text-align:center}
+.btn.main{background:var(--pink);border-color:var(--pink);color:var(--ink);font-weight:600}
+.btn:hover{filter:brightness(1.15)}.btn:disabled{opacity:.5;cursor:wait}
+input[type=range]{width:100%;accent-color:var(--pink)}
+hr{border:0;border-top:1px solid var(--line);margin:0}
+.hint{font-size:13px;color:var(--mute);margin:6px 0 0}
+.count,.big{font:italic 22px var(--serif);color:var(--soft);margin-top:6px}
+.badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin-top:10px}
+.banner{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--pink);border-radius:18px;padding:16px 18px;margin-top:14px}
+.banner p{margin:0;font:italic 19px var(--serif)}
+.log{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.log li{display:flex;gap:10px;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:12px;padding:9px 12px;background:#0c0c0f}
+.log em{font:italic 17px var(--serif);color:var(--soft)}.log small{color:var(--mute);display:block}
+.x{background:none;border:0;color:var(--mute);cursor:pointer;font-size:20px;line-height:1}.x:hover{color:var(--pink)}
+section.gap{margin-top:26px}
+details.lock summary{cursor:pointer;color:var(--soft);font-size:14px}
+details.lock[open] summary{margin-bottom:8px}
+.giftbox{max-width:560px;margin:18px auto 0;display:flex;flex-direction:column;gap:14px}
+.giftbox .lab{text-align:center}
+.links{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+@media(max-width:620px){.links{grid-template-columns:1fr}}
+.link{display:flex;flex-direction:column;gap:6px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px}
+.link b{font:italic 400 22px var(--serif)}
+.link p{margin:0;color:var(--mute);font-size:14px;flex:1}
+.link .btn{align-self:stretch;flex:none;margin-top:6px}
+.err{color:#ff9aa8;margin:8px 0 0;font-size:14px}
+footer{border-top:1px solid var(--line);color:var(--mute);font-size:13px;padding:18px 0 28px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--soft);color:var(--ink);padding:10px 18px;border-radius:999px;opacity:0;transition:.25s;pointer-events:none;font-weight:600;z-index:9}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+ <div class="top">
+  <h1>Ascii <b>bloom</b></h1>
+  <nav role="tablist" aria-label="Sections">
+   <button class="tab" role="tab" id="t-maker" aria-selected="true">Flower maker</button>
+   <button class="tab" role="tab" id="t-garden" aria-selected="false"><span>xoxo</span>Your Garden</button>
+  </nav>
+ </div>
+ <p class="sub">Flowers grown from nothing but letters. Make one for someone you love, or for yourself. You deserve flowers too.</p>
+</header>
+
+<main>
+<!-- ===================== FLOWER MAKER ===================== -->
+<div id="maker" class="grid">
+ <section>
+  <div class="stage"><canvas id="cv" role="img" aria-label="A flower drawn with text characters"></canvas>
+   <div class="card"><p class="msg" id="msg"></p><div class="from" id="from"></div></div></div>
+ </section>
+ <section class="panel">
+  <div><span class="lab">Flower</span><div class="row" id="types"></div></div>
+  <div><span class="lab">Colours</span><div class="row" id="pals"></div></div>
+  <div><label for="n">Stems: <span id="nv">5</span></label><input type="range" id="n" min="1" max="9" value="5"></div>
+  <div><label for="name">For</label><input type="text" id="name" maxlength="30" placeholder="Their name (or yours)"></div>
+  <div><label for="note">Note</label><textarea id="note" maxlength="120" placeholder="Thinking of you, always."></textarea></div>
+  <div><label for="fromi">From</label><input type="text" id="fromi" maxlength="30" placeholder="Your name"></div>
+  <div class="row"><button class="btn main" id="again">Grow a new one</button><button class="btn" id="daily">Today’s shared bloom</button></div>
+  <p class="hint">Today’s shared bloom is the same flower for everyone on the same date, so you and your person can open it together.</p>
+  <hr>
+  <div class="lab">Send it across the miles</div>
+  <div class="row"><button class="btn main" id="share">Copy link to this flower</button><button class="btn" id="wa">WhatsApp</button><button class="btn" id="png">Save picture</button></div>
+  <p class="hint" style="margin-top:0">They tap the link and your flower grows on their screen. Nothing to paste.</p>
+  <details class="lock"><summary>Lock it with a secret word (optional)</summary>
+   <input type="text" id="pw" maxlength="40" autocomplete="off" placeholder="Type a secret word"><p class="hint">With a word, your flower and note are encrypted inside the link, and whoever opens it must type the word. Tell them the word in a different chat. Leave it empty for a link that opens straight away.</p></details>
+  <hr>
+  <div><label for="date">Counting down until we’re together</label><input type="date" id="date"><div class="count" id="cd"></div></div>
+ </section>
+</div>
+
+<!-- ===================== GIFT (opened from a shared link) ===================== -->
+<div id="gift" hidden>
+ <div class="giftbox">
+  <div class="panel" id="glock" hidden>
+   <h2>Someone grew you a flower</h2>
+   <p class="sub" style="margin:0">It’s locked with a secret word. Type the word they gave you.</p>
+   <input type="text" id="gpw" autocomplete="off" placeholder="Secret word" style="margin:0">
+   <button class="btn main" id="gopen" style="flex:none">Open</button>
+   <p class="err" id="gerr2" hidden>That word doesn’t open it. Try again.</p>
+  </div>
+  <div id="greveal" hidden>
+   <p class="lab">A flower for you</p>
+   <div class="stage" style="margin-top:8px"><canvas id="gfc" role="img" aria-label="A flower drawn with text characters"></canvas>
+    <div class="card"><p class="msg" id="gmsg"></p><div class="from" id="gfrom"></div></div></div>
+   <div class="row"><button class="btn" id="greplay">Watch it grow again</button><button class="btn main" id="gmake">Make one for someone</button></div>
+  </div>
+  <div class="panel" id="gbad" hidden>
+   <h2>This link looks incomplete</h2>
+   <p class="sub" style="margin:0">Part of it may have been cut off. Ask them to send it again, or grow a flower of your own.</p>
+   <button class="btn main" id="gmake2" style="flex:none">Make a flower</button>
+  </div>
+ </div>
+</div>
+
+<!-- ===================== GARDEN ===================== -->
+<div id="garden" hidden>
+ <div class="banner" id="g-view" hidden><p>You’re looking at a garden. You can see it, but not change it.</p><button class="btn main" id="g-own" style="flex:none">Make your own garden</button></div>
+ <div style="margin-top:18px"><h2 id="g-title">My garden</h2><span class="badge" id="g-badge"></span></div>
+
+ <div class="panel" id="g-plant" style="margin-top:14px">
+  <span class="lab">Choose a flower</span>
+  <div class="row" id="g-types"></div><div class="row" id="g-pals"></div>
+  <div><input type="text" id="g-note" maxlength="80" placeholder="A little note to leave with it (optional)"></div>
+  <p class="hint" id="g-status"></p>
+ </div>
+ <div class="scroller"><canvas id="gc" role="img" aria-label="The garden"></canvas></div>
+ <ul class="log" id="g-log" aria-label="Recent plantings"></ul>
+
+ <section class="gap">
+  <h2>Month by month</h2>
+  <p class="sub">One flower grows for every month together, and a bud waits for the next.</p>
+  <div class="row" id="g-dater"><input type="date" id="g-date" aria-label="The day we got together" style="max-width:220px;margin:0"><button class="btn" id="g-save" style="flex:none">Save the date</button></div>
+  <div class="big" id="g-since"></div><div id="g-years"></div>
+ </section>
+
+ <!-- bottom of the page: one of these three shows, depending on the mode -->
+ <section class="gap" id="g-create">
+  <div class="panel" style="max-width:600px">
+   <h2>Plant your garden</h2>
+   <p class="sub" style="margin:0">Your garden above lives on this device only. Plant it online to keep it safe and share it. You’ll get two links: one to show it off, and one for your person so you can both plant. Everything you’ve planted so far comes with you.</p>
+   <div><label for="gname">Garden name (optional)</label><input type="text" id="gname" maxlength="40" placeholder="For example: Aarav &amp; Meera"></div>
+   <button class="btn main" id="gcreate" style="flex:none">Plant our garden online</button>
+   <p class="err" id="gerr" hidden></p>
+  </div>
+ </section>
+
+ <section class="gap" id="g-share" hidden>
+  <h2>Share this garden</h2>
+  <div class="links">
+   <div class="link"><b>My Garden</b><p>A view-only link. People who open it can see every flower, and get a button to make a garden of their own.</p><button class="btn" id="l-view">Copy My Garden link</button></div>
+   <div class="link"><b>Our Garden</b><p>Send this only to your person. Anyone with it can plant and remove flowers, and everything is saved to this one garden.</p><button class="btn main" id="l-edit">Copy Our Garden link</button></div>
+  </div>
+  <p class="hint"><button class="x" id="g-leave" style="font-size:13px;text-decoration:underline">Forget this garden on this device</button> (the links above still work)</p>
+ </section>
+
+ <section class="gap" id="g-cta" hidden>
+  <div class="panel" style="max-width:600px"><h2>Want a garden like this?</h2><p class="sub" style="margin:0">Plant your own, grow it with someone you love, and share it from anywhere.</p><button class="btn main" id="g-own2" style="flex:none">Make your own garden</button></div>
+ </section>
+</div>
+</main>
+<footer>Ascii Bloom · Notes and flowers in a garden are visible to anyone with its link. Nothing else about you is stored.</footer>
+</div>
+<div id="toast" role="status"></div>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const TYPES=['lily','rose','tulip','daisy','cherry','sunflower'];
+const PAL={blush:['#f4739f','#ff9cc0','#ffd0e1','#fff0f4'],peach:['#ff7f5c','#ffa87e','#ffd3b4','#fff1e4'],lilac:['#9a6cf0','#bd96ff','#e0cdff','#f6f0ff'],snow:['#c9d4ea','#e3eaf6','#f4f7fc','#ffffff']};
+const PK=Object.keys(PAL),GR=['#5a9e2a','#7cc242','#9ad94a'],TAU=Math.PI*2;
+const cl=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)),ez=v=>1-Math.pow(1-cl(v),3);
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+function rngf(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.k);toast.k=setTimeout(()=>t.classList.remove('on'),2200)}
+async function copy(txt,m){try{await navigator.clipboard.writeText(txt);toast(m)}catch(e){prompt('Copy this:',txt)}}
+function pills(box,onpick){TYPES.forEach(t=>{const b=document.createElement('button');b.className='pill';b.dataset.v=t;b.textContent=t[0].toUpperCase()+t.slice(1);b.onclick=()=>onpick('type',t);box.append(b)})}
+function swatches(box,onpick){PK.forEach(k=>{const b=document.createElement('button');b.className='sw';b.dataset.v=k;b.title=k;b.setAttribute('aria-label',k+' colours');b.style.background=`linear-gradient(135deg,${PAL[k][0]},${PAL[k][2]})`;b.onclick=()=>onpick('pal',k);box.append(b)})}
+function mark(box,sel,attr){box.querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===sel))}
+
+/* ================= FLOWER ENGINE =================
+   Shapes are drawn with dark outlines on a small canvas, snapped to a fixed
+   palette, then every pixel becomes one character. Outlines keep petals crisp. */
+const shade=(hex,f=.6)=>{const n=parseInt(hex.slice(1),16);return'#'+[16,8,0].map(s=>Math.round(((n>>s)&255)*f).toString(16).padStart(2,'0')).join('')};
+const rgb=h=>{const n=parseInt(h.slice(1),16);return[n>>16,n>>8&255,n&255]};
+const PALETTE=[];
+(()=>{const add=(c,ch)=>PALETTE.push({c,ch,v:rgb(c)});
+ PK.forEach(k=>PAL[k].forEach(c=>{add(c,'x');add(shade(c),'X')}));
+ GR.forEach(c=>add(c,'o'));add(shade(GR[1],.5),'O');add(shade(GR[0],.7),'O');
+ ['#f2c230','#ffd84d','#e6c93a','#f1d23a'].forEach(c=>add(c,'*'));add('#5a3a1a','X');add('#9a6a2a','x');add('#ffffff','x');add('#9a9aa8','X')})();
+const snapCache=new Map();
+function snap(r,gg,b){const k=r<<16|gg<<8|b;let h=snapCache.get(k);if(h)return h;let best=1e9;for(const p of PALETTE){const d=(p.v[0]-r)**2+(p.v[1]-gg)**2+(p.v[2]-b)**2;if(d<best){best=d;h=p}}snapCache.set(k,h);return h}
+
+let g;
+function petal(x,y,a,len,w,col,line=true){g.save();g.translate(x,y);g.rotate(a);g.fillStyle=col;g.beginPath();g.moveTo(0,0);g.bezierCurveTo(w,-len*.3,w*.85,-len*.8,0,-len);g.bezierCurveTo(-w*.85,-len*.8,-w,-len*.3,0,0);g.fill();if(line){g.strokeStyle=shade(col);g.lineWidth=.9;g.stroke()}g.restore()}
+function disc(x,y,r,col,line=true){g.fillStyle=col;g.beginPath();g.arc(x,y,Math.max(r,.1),0,TAU);g.fill();if(line){g.strokeStyle=shade(col);g.lineWidth=.9;g.stroke()}}
+function ring(x,y,rot,n,rad,pr,cols){for(let i=0;i<n;i++){const a=rot+i*TAU/n;disc(x+Math.cos(a)*rad,y+Math.sin(a)*rad,pr,cols[i%cols.length])}}
+function bloom(type,x,y,s,rot,P){
+ if(s<.8)return;
+ switch(type){
+ case'lily':
+  for(let p=0;p<2;p++)for(let i=p;i<6;i+=2)petal(x,y,rot+i*TAU/6,s,s*.38,p?P[0]:P[1]);
+  for(let i=0;i<6;i++)petal(x,y,rot+i*TAU/6,s*.6,s*.08,P[3],false);
+  for(let i=0;i<4;i++){const a=rot+i*1.6+.4,l=s*.5;g.strokeStyle='#c9a82a';g.lineWidth=.8;g.beginPath();g.moveTo(x,y);g.lineTo(x+Math.sin(a)*l,y-Math.cos(a)*l);g.stroke();disc(x+Math.sin(a)*l,y-Math.cos(a)*l,s*.07,'#f2c230',false)}break;
+ case'rose':
+  disc(x,y,s*.98,P[0]);ring(x,y,rot,7,s*.58,s*.4,[P[1],P[0]]);ring(x,y,rot+.4,5,s*.38,s*.3,[P[2],P[1]]);ring(x,y,rot+.9,3,s*.17,s*.2,[P[1],P[2]]);
+  g.strokeStyle=shade(P[0]);g.lineWidth=.8;g.beginPath();g.arc(x,y,s*.26,.4,4.4);g.stroke();break;
+ case'tulip':{const by=y+s*.85,t=rot*.4;
+  petal(0+x,by,t-.34,s*1.7,s*.55,P[0]);petal(x,by,t+.34,s*1.7,s*.55,P[0]);petal(x,by,t,s*1.95,s*.52,P[1]);petal(x,by,t-.08,s*1.45,s*.5,P[1]);petal(x,by,t+.1,s*1.1,s*.16,P[3],false);break}
+ case'daisy':
+  for(let i=0;i<12;i++)petal(x,y,rot+i*TAU/12,s,s*.17,'#ffffff');disc(x,y,s*.3,'#f2c230');break;
+ case'cherry':
+  for(let i=0;i<5;i++)petal(x,y,rot+i*TAU/5,s,s*.5,P[2]);for(let i=0;i<5;i++)petal(x,y,rot+i*TAU/5,s*.5,s*.12,P[0],false);disc(x,y,s*.12,'#f2c230',false);break;
+ default:
+  for(let i=0;i<16;i++)petal(x,y,rot+i*TAU/16,s,s*.2,i%2?'#f2c230':'#ffd84d');disc(x,y,s*.45,'#5a3a1a');for(let i=0;i<7;i++){const a=i*2.4;disc(x+Math.cos(a)*s*.22*(i%3+1)/2,y+Math.sin(a)*s*.22*(i%3+1)/2,s*.05,'#9a6a2a',false)}}
+}
+function stem(bx,by,x,y,p,leaf,r){
+ const cx=bx+(x-bx)*.2,cy=(by+y)/2;g.strokeStyle=GR[1];g.lineWidth=1.8;g.beginPath();g.moveTo(bx,by);
+ for(let u=.04;u<=p+.001;u+=.04){const a=(1-u)**2,b=2*u*(1-u),c=u*u;g.lineTo(a*bx+b*cx+c*x,a*by+b*cy+c*y)}g.stroke();
+ if(leaf)[.42,.68].forEach((u,i)=>{if(p<u)return;const px=(1-u)**2*bx+2*u*(1-u)*cx+u*u*x,py=(1-u)**2*by+2*u*(1-u)*cy+u*u*y;petal(px,py,(i?1:-1)*(1.05+r()*.25),7+r()*3,2.6,GR[(i+1)%3])})
+}
+/* a view = canvas + items; items = {type,pal,x,bx,h,s,seed,t0,bud,label} (x, bx as 0..1 of width) */
+const views=[];
+function mkView(cv,cols,rows,ground,extra={}){const v={cv,cols,rows,ground,items:[],cells:null,dirty:true,...extra};views.push(v);return v}
+function build(v,now){
+ const off=document.createElement('canvas');off.width=v.cols;off.height=v.rows;g=off.getContext('2d',{willReadFrequently:true});
+ let anim=false;
+ if(v.filler&&v.items[0]){const r=rngf(v.items[0].seed),t=cl((now-v.items[0].t0)/1900),sp=ez(t*1.6);
+  for(let i=0;i<5;i++){const a=(r()-.5)*1.5,l=24+r()*22,bx=v.cols/2,x=bx+Math.sin(a)*l,y=v.ground-Math.cos(a)*l-6;stem(bx,v.ground,x,y,sp,false,r);petal(x,y,a,9,3.2,GR[i%3])}}
+ for(const it of v.items){
+  const r=rngf(it.seed),P=PAL[it.pal]||PAL.blush,t=cl((now-it.t0)/1900);if(t<1)anim=true;
+  const x=it.x*v.cols,bx=(it.bx??it.x)*v.cols,h=it.bud?9:(it.h??14+r()*22),ty=v.ground-h,sp=ez(t*1.6),bp=it.bud?0:ez((t-.35)*1.7),rot=(r()-.5)*.6;
+  stem(bx,v.ground,x,ty+2,sp,true,r);
+  if(it.bud){disc(x,ty,3*ez(t),P[1]);petal(x,ty,0,5*ez(t),2,GR[1])}else bloom(it.type,x,ty,(it.s||8)*bp,rot,P)
+ }
+ const d=g.getImageData(0,0,v.cols,v.rows).data;v.cells=[];
+ for(let y=0;y<v.rows;y++)for(let x=0;x<v.cols;x++){const k=(y*v.cols+x)*4;if(d[k+3]<140)continue;const h=snap(d[k],d[k+1],d[k+2]);v.cells.push({x,y,c:h.c,ch:h.ch})}
+ v.dirty=anim;
+}
+function paint(v,now){
+ const cv=v.cv,w=cv.clientWidth;if(!w||!cv.offsetParent)return;
+ const dpr=Math.min(devicePixelRatio||1,2),H=Math.round(w/v.cols*v.rows);
+ if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(H*dpr);cv.style.height=H+'px'}
+ if(v.dirty||!v.cells)build(v,now);
+ const c=cv.getContext('2d'),cw=cv.width/v.cols;c.clearRect(0,0,cv.width,cv.height);
+ c.font=`bold ${cw*1.25}px ${getComputedStyle(document.body).getPropertyValue('--mono')||'monospace'}`;c.textAlign='center';c.textBaseline='middle';
+ for(const k of v.cells){c.fillStyle=k.c;c.fillText(k.ch,(k.x+.5)*cw,(k.y+.55)*cw)}
+ if(v.soil){for(let y=v.ground+1;y<v.rows;y++)for(let x=0;x<v.cols;x++){const s=(x*31+y*17)%5;c.fillStyle=y===v.ground+1?(s<3?'#4f8a24':'#6fbf2c'):(s<2?'#5b4630':'#3d2e20');c.fillText(y===v.ground+1?'"\'`,'[s%4]:'.:,;'[s%4],(x+.5)*cw,(y+.55)*cw)}}
+ if(v.labels){c.font=`italic ${cw*3.4}px Georgia,serif`;c.fillStyle='#ffd0e1';v.items.forEach(it=>it.label&&c.fillText(it.label,it.x*v.cols*cw,(v.rows-2)*cw))}
+}
+const loop=n=>{views.forEach(v=>paint(v,n));requestAnimationFrame(loop)};
+
+/* ================= FLOWER MAKER ================= */
+let S={type:'lily',pal:'blush',n:5,seed:7,name:'',from:'',msg:'You are loved, more than you know.'};
+const mv=mkView($('cv'),110,112,108,{filler:true});
+function itemsFor(st,grow){
+ const r=rngf(st.seed),n=st.n,now=performance.now(),list=[];
+ for(let i=0;i<n;i++){
+  const u=n===1?0:(i+.5)/n-.5,spread=Math.min(.52,.1+n*.066),ty=st.type==='mix'?TYPES[Math.floor(r()*6)]:st.type;
+  list.push({type:ty,pal:st.pal,x:.5+u*spread+(r()-.5)*.03,bx:.5,h:n===1?72:46+(1-Math.abs(u)*1.6)*12+r()*8,s:n===1?24:(n>6?11:14)+r()*4,seed:Math.floor(r()*1e9),t0:grow?now+i*70:-1e9})}
+ return list;
+}
+function makerItems(grow){mv.items=itemsFor(S,grow);mv.dirty=true}
+function fillCard(st,el,fr){const nm=st.name.trim(),m=st.msg.trim()||'Thinking of you, always.';el.textContent='';
+ if(nm){el.append('For ');const i=document.createElement('i');i.textContent=nm;el.append(i,document.createElement('br'))}
+ el.append(m);fr.textContent=st.from.trim()?'— '+st.from.trim():''}
+function card(){fillCard(S,$('msg'),$('from'))}
+function syncMaker(){$('n').value=S.n;$('nv').textContent=S.n;$('name').value=S.name;$('note').value=S.msg;$('fromi').value=S.from;mark($('types'),S.type);mark($('pals'),S.pal);card()}
+pills($('types'),(k,v)=>{S[k]=v;syncMaker();makerItems(true)});
+$('types').insertAdjacentHTML('beforeend','<button class="pill" data-v="mix">Mixed bouquet</button>');$('types').lastChild.onclick=()=>{S.type='mix';syncMaker();makerItems(true)};
+swatches($('pals'),(k,v)=>{S[k]=v;syncMaker();makerItems(true)});
+$('n').oninput=e=>{S.n=+e.target.value;$('nv').textContent=S.n;makerItems(true)};
+$('name').oninput=e=>{S.name=e.target.value;card()};$('note').oninput=e=>{S.msg=e.target.value;card()};$('fromi').oninput=e=>{S.from=e.target.value;card()};
+$('again').onclick=()=>{S.seed=Math.floor(Math.random()*1e9);makerItems(true)};
+$('daily').onclick=()=>{const d=new Date().toISOString().slice(0,10);let h=0;for(const ch of d)h=(h*31+ch.charCodeAt(0))|0;const r=rngf(h);
+ S.seed=Math.abs(h);S.type=TYPES[Math.floor(r()*6)];S.pal=PK[Math.floor(r()*3)];S.n=3+Math.floor(r()*5);syncMaker();makerItems(true);toast('Everyone sees this one today ('+d+')')};
+
+/* ---- sharing: a flower becomes a link. An optional secret word encrypts it (AES-GCM + PBKDF2) ---- */
+const enc=new TextEncoder(),dec=new TextDecoder();
+const b64=u=>btoa(String.fromCharCode(...u)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const unb=t=>{t=t.replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';return Uint8Array.from(atob(t),c=>c.charCodeAt(0))};
+async function dkey(pw,salt){const k=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},k,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function seal(st,pw){const j=enc.encode(JSON.stringify([st.type,st.pal,st.n,st.seed,st.name,st.from,st.msg]));if(!pw)return'P.'+b64(j);
+ const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},await dkey(pw,salt),j)),all=new Uint8Array(28+ct.length);all.set(salt);all.set(iv,16);all.set(ct,28);return'L.'+b64(all)}
+function toState(a){if(!Array.isArray(a)||!TYPES.concat('mix').includes(a[0])||!PAL[a[1]])throw new Error('bad flower');
+ return{type:a[0],pal:a[1],n:cl(+a[2]||5,1,9),seed:+a[3]||1,name:String(a[4]||'').slice(0,30),from:String(a[5]||'').slice(0,30),msg:String(a[6]||'').slice(0,120)}}
+async function unseal(f,pw){let j;
+ if(f.startsWith('P.'))j=unb(f.slice(2));
+ else if(f.startsWith('L.')){const a=unb(f.slice(2));j=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:a.slice(16,28)},await dkey(pw,a.slice(0,16)),a.slice(28)))}
+ else throw new Error('bad link');
+ return toState(JSON.parse(dec.decode(j)))}
+const flowerLink=async()=>`${location.origin}${location.pathname}?f=${await seal(S,$('pw').value.trim())}`;
+$('share').onclick=async()=>{try{copy(await flowerLink(),'Link copied. Send it to them!')}catch(e){toast('Couldn’t make the link here')}};
+$('wa').onclick=async()=>{try{const u=await flowerLink(),lock=$('pw').value.trim()?' It’s locked with a secret word. I’ll tell you what it is.':'';
+ window.open('https://wa.me/?text='+encodeURIComponent(`I grew you a flower made of code 🌸${lock}\n${u}`),'_blank','noopener')}catch(e){toast('Couldn’t make the link here')}};
+
+/* ---- gift view: what someone sees when they open a shared link ---- */
+const gfv=mkView($('gfc'),110,112,108,{filler:true});let giftF='';
+const giftShow=id=>['glock','greveal','gbad'].forEach(k=>$(k).hidden=k!==id);
+function reveal(o){fillCard(o,$('gmsg'),$('gfrom'));giftShow('greveal');gfv.items=itemsFor(o,true);gfv.dirty=true;$('greplay').onclick=()=>{gfv.items=itemsFor(o,true);gfv.dirty=true}}
+function openGift(f){giftF=f;['maker','garden'].forEach(i=>$(i).hidden=true);$('gift').hidden=false;['t-maker','t-garden'].forEach(i=>$(i).setAttribute('aria-selected','false'));
+ if(f.startsWith('L.')){giftShow('glock');$('gpw').focus();return}
+ unseal(f).then(reveal).catch(()=>giftShow('gbad'))}
+$('gopen').onclick=async()=>{$('gerr2').hidden=true;try{reveal(await unseal(giftF,$('gpw').value.trim()))}catch(e){$('gerr2').hidden=false}};
+$('gpw').addEventListener('keydown',e=>{if(e.key==='Enter')$('gopen').click()});
+$('gmake').onclick=$('gmake2').onclick=()=>tab('maker');
+
+$('png').onclick=()=>{const W=900,H=1100,o=document.createElement('canvas');o.width=W;o.height=H;const x=o.getContext('2d');x.fillStyle='#050506';x.fillRect(0,0,W,H);x.drawImage($('cv'),50,30,800,800);x.textAlign='center';
+ let y=910;x.font='italic 44px Georgia,serif';if(S.name.trim()){x.fillStyle='#ffd0e1';x.fillText('For '+S.name.trim(),W/2,y);y+=60}
+ x.fillStyle='#f3ecef';x.font='38px Georgia,serif';let line='';for(const w of(S.msg.trim()||'Thinking of you, always.').split(' ')){if(x.measureText(line+w).width>760){x.fillText(line,W/2,y);y+=50;line=''}line+=w+' '}x.fillText(line,W/2,y);
+ if(S.from.trim()){x.fillStyle='#9a949b';x.font='italic 30px Georgia,serif';x.fillText('— '+S.from.trim(),W/2,y+60)}
+ const a=document.createElement('a');a.download='ascii-bloom.png';a.href=o.toDataURL('image/png');a.click();toast('Saved')};
+function countdown(){const v=$('date').value;if(!v){$('cd').textContent='';return}const n=Math.ceil((new Date(v+'T00:00:00')-new Date().setHours(0,0,0,0))/864e5);
+ $('cd').textContent=n>0?`${n} sleep${n===1?'':'s'} until we’re together`:n===0?'Today is the day.':'Together at last.';store.set('ab-date',v)}
+$('date').onchange=countdown;$('date').value=store.get('ab-date')||'';
+
+/* ================= GARDEN =================
+   Modes: local (saved in this browser, always works) | edit (shared, saved online) | view (read only) */
+const api={
+ async call(url,opt){let r;try{r=await fetch(url,opt)}catch(e){throw new Error('Can’t reach the garden server.')}
+  if(!(r.headers.get('content-type')||'').includes('json'))throw new Error('The garden server wasn’t found. Make sure api/garden.js is deployed.');
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Something went wrong');return d},
+ get(q){return this.call('/api/garden?'+q,{cache:'no-store'})},
+ post(b){return this.call('/api/garden',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)})}
+};
+let me=store.get('ab-me');if(!me){me=Math.random().toString(36).slice(2,12);store.set('ab-me',me)}
+const sel={type:'lily',pal:'blush'};
+let G=null,poll=null,monthViews=[];const seen=new Map();
+const gv=mkView($('gc'),140,76,62,{soil:true});
+pills($('g-types'),(k,v)=>{sel[k]=v;mark($('g-types'),sel.type)});swatches($('g-pals'),(k,v)=>{sel[k]=v;mark($('g-pals'),sel.pal)});mark($('g-types'),sel.type);mark($('g-pals'),sel.pal);
+const baseUrl=()=>location.origin+location.pathname;
+const shareView=()=>`${baseUrl()}?view=${G.id}#garden`,shareEdit=()=>`${baseUrl()}?join=${G.key}#garden`;
+const validPlant=p=>p&&PAL[p.pal]&&TYPES.includes(p.type);
+
+function loadLocal(notice){
+ clearInterval(poll);let plants=[];try{plants=JSON.parse(store.get('ab-local')||'[]')}catch(e){}
+ G={mode:'local',id:null,key:null,name:'',startDate:store.get('ab-local-date')||'',plants:(Array.isArray(plants)?plants:[]).filter(validPlant)};
+ renderGarden();if(notice)$('g-status').textContent=notice+' Showing your garden on this device instead.'
+}
+const saveLocal=()=>store.set('ab-local',JSON.stringify(G.plants));
+async function openGarden(by){
+ try{const d=await api.get(by.key?'key='+encodeURIComponent(by.key):'id='+encodeURIComponent(by.id));
+  G={...d.garden,key:by.key||null,mode:by.key?'edit':'view',plants:d.plants};if(by.key)store.set('ab-key',by.key);
+  renderGarden();clearInterval(poll);poll=setInterval(refreshGarden,6000);return true}
+ catch(e){if(by.key&&/not found/i.test(e.message)&&store.get('ab-key')===by.key)store.del('ab-key');loadLocal(e.message);return false}
+}
+async function refreshGarden(){
+ if(!G||G.mode==='local'||document.hidden||$('garden').hidden)return;
+ try{const d=await api.get(G.key?'key='+encodeURIComponent(G.key):'id='+encodeURIComponent(G.id));
+  if(JSON.stringify([d.plants,d.garden.startDate,d.garden.name])!==JSON.stringify([G.plants,G.startDate,G.name])){G={...G,...d.garden,plants:d.plants};renderGarden()}}catch(e){}
+}
+function renderGarden(){
+ const m=G.mode,edit=m!=='view',now=performance.now();
+ $('g-title').textContent=G.name||(m==='local'?'My garden':'Our garden');
+ $('g-badge').textContent={local:'Saved on this device only',edit:'Shared garden · you can plant',view:'View only'}[m];
+ $('g-view').hidden=m!=='view';$('g-plant').hidden=!edit;$('g-dater').hidden=!edit;
+ $('g-create').hidden=m!=='local';$('g-share').hidden=m!=='edit';$('g-cta').hidden=m!=='view';
+ $('g-status').textContent=m==='local'?'Click anywhere in the garden to plant. Scroll down to save it online and share it.':'Click anywhere in the garden to plant. It is saved for both of you.';
+ $('gc').style.cursor=edit?'crosshair':'default';
+ gv.items=G.plants.map(p=>{if(!seen.has(p.id))seen.set(p.id,now);return{type:p.type,pal:p.pal,x:p.x,seed:p.seed,s:8+(p.seed%40)/10,t0:seen.get(p.id)}});gv.dirty=true;
+ const l=$('g-log');l.textContent='';
+ [...G.plants].reverse().slice(0,8).forEach(p=>{const li=document.createElement('li'),d=document.createElement('div'),e=document.createElement('em'),s=document.createElement('small');
+  e.textContent=p.type[0].toUpperCase()+p.type.slice(1);s.textContent=(p.author===me?'Planted by you':'Planted by your person')+(p.msg?' · “'+p.msg+'”':'');d.append(e,s);li.append(d);
+  if(edit){const x=document.createElement('button');x.className='x';x.textContent='×';x.setAttribute('aria-label','Remove this flower');x.onclick=()=>removePlant(p.id);li.append(x)}l.append(li)});
+ $('g-date').value=G.startDate||'';months();
+}
+async function reload(){const d=await api.get('key='+encodeURIComponent(G.key));G={...G,...d.garden,plants:d.plants};renderGarden()}
+async function removePlant(id){
+ if(G.mode==='local'){G.plants=G.plants.filter(p=>p.id!==id);saveLocal();renderGarden();return}
+ try{await api.post({action:'remove',key:G.key,plantId:id});await reload()}catch(e){toast(e.message)}
+}
+$('gc').addEventListener('click',async e=>{
+ if(!G)return;if(G.mode==='view'){toast('This garden is view only');return}
+ const r=e.currentTarget.getBoundingClientRect(),x=cl((e.clientX-r.left)/r.width,.04,.96);
+ const p={type:sel.type,pal:sel.pal,x:+x.toFixed(3),seed:Math.floor(Math.random()*2e9),msg:$('g-note').value.trim().slice(0,80),author:me};
+ if(G.mode==='local'){if(G.plants.length>=80){toast('The garden is full. Remove a flower first.');return}
+  G.plants.push({...p,id:'l'+Date.now(),ts:Math.floor(Date.now()/1000)});saveLocal();$('g-note').value='';renderGarden();return}
+ try{await api.post({action:'plant',key:G.key,plant:p});$('g-note').value='';await reload();toast('Planted and saved')}catch(err){toast(err.message)}
+});
+$('g-save').onclick=async()=>{const v=$('g-date').value;if(!v){toast('Pick a date first');return}
+ if(G.mode==='local'){G.startDate=v;store.set('ab-local-date',v);renderGarden();toast('Saved');return}
+ try{await api.post({action:'date',key:G.key,date:v});await reload();toast('Saved for both of you')}catch(e){toast(e.message)}};
+$('gcreate').onclick=async()=>{const b=$('gcreate'),err=$('gerr');b.disabled=true;err.hidden=true;
+ try{const d=await api.post({action:'create',name:$('gname').value,startDate:G.startDate,plants:G.plants.map(({type,pal,x,seed,msg})=>({type,pal,x,seed,msg,author:me}))});
+  history.replaceState(null,'',baseUrl()+'#garden');
+  if(await openGarden({key:d.key})){store.del('ab-local');store.del('ab-local-date');toast('Saved online! Your two links are at the bottom.');$('g-share').scrollIntoView({behavior:'smooth'})}}
+ catch(e){err.textContent=e.message+' Your garden is still safe on this device.';err.hidden=false}finally{b.disabled=false}};
+const own=()=>{history.replaceState(null,'',baseUrl()+'#garden');const k=store.get('ab-key');if(k){openGarden({key:k});return}loadLocal();$('g-create').scrollIntoView({behavior:'smooth'})};
+$('g-own').onclick=own;$('g-own2').onclick=own;
+$('l-view').onclick=()=>copy(shareView(),'My Garden link copied (view only)');
+$('l-edit').onclick=()=>copy(shareEdit(),'Our Garden link copied. Only send it to your person.');
+$('g-leave').onclick=()=>{store.del('ab-key');history.replaceState(null,'',baseUrl()+'#garden');loadLocal()};
+
+function months(){
+ monthViews.forEach(v=>views.splice(views.indexOf(v),1));monthViews=[];const box=$('g-years');box.textContent='';
+ if(!G.startDate){$('g-since').textContent='';return}
+ const s=new Date(G.startDate+'T00:00:00'),n=new Date();let m=(n.getFullYear()-s.getFullYear())*12+n.getMonth()-s.getMonth();if(n.getDate()<s.getDate())m--;
+ const days=Math.floor((n-s)/864e5);$('g-since').textContent=days<0?'Not yet. Your story starts soon.':`${days} day${days===1?'':'s'} together · ${m} month${m===1?'':'s'}`;if(days<0)return;
+ const total=m+1,now=performance.now();
+ for(let y=0;y*12<total;y++){
+  const h=document.createElement('p');h.className='lab';h.style.marginTop='16px';h.textContent='Year '+(y+1);
+  const sc=document.createElement('div');sc.className='scroller';const c=document.createElement('canvas');c.setAttribute('role','img');c.setAttribute('aria-label','Flowers for year '+(y+1));sc.append(c);box.append(h,sc);
+  const v=mkView(c,130,60,46,{soil:true,labels:true});monthViews.push(v);
+  for(let i=y*12+1;i<=Math.min(total,y*12+12);i++){const k=i-y*12;
+   v.items.push({type:i%12===0?'rose':TYPES[(i-1)%6],pal:PK[(i-1)%4],x:(k-.5)/12,seed:i*7919,s:i%12===0?11:8.5,h:i%12===0?30:20+(i*7%9),bud:i>m,label:i>m?'soon':String(i),t0:now+k*140})}
+ }
+}
+
+/* ================= NAV + ROUTING ================= */
+function tab(name,push=true){
+ const g_=name==='garden';$('maker').hidden=g_;$('garden').hidden=!g_;$('gift').hidden=true;
+ $('t-maker').setAttribute('aria-selected',!g_);$('t-garden').setAttribute('aria-selected',g_);
+ if(push){const qs=new URLSearchParams(location.search);qs.delete('f');const t=qs.toString();history.replaceState(null,'',location.pathname+(t?'?'+t:'')+(g_?'#garden':''))}
+ if(g_&&!G)start();
+}
+function start(){
+ const q=new URLSearchParams(location.search);
+ if(q.get('join')){loadLocal();return openGarden({key:q.get('join')})}
+ if(q.get('view')){loadLocal();return openGarden({id:q.get('view')})}
+ const k=store.get('ab-key');loadLocal();if(k)openGarden({key:k});
+}
+$('t-maker').onclick=()=>tab('maker');$('t-garden').onclick=()=>tab('garden');
+syncMaker();makerItems(true);countdown();requestAnimationFrame(loop);
+const q0=new URLSearchParams(location.search);
+if(q0.get('f'))openGift(q0.get('f'));else tab(location.hash==='#garden'||q0.get('join')||q0.get('view')?'garden':'maker',false);
+</script>
+</body>
+</html>
